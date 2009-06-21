@@ -154,6 +154,9 @@ void loop(){
         if (cmd == 1){
           plen = print_webpage (buf);
         }
+        if (cmd == 2){
+          plen = print_webpage_about (buf);
+        }
 SENDTCP:  es.ES_make_tcp_ack_from_any(buf); // send ack for http get
           es.ES_make_tcp_ack_with_data(buf,plen); // send data
       }
@@ -297,10 +300,54 @@ uint16_t print_webpage (uint8_t *buf)
   plen = es.ES_fill_tcp_data (buf, plen, baseurl);
   plen = es.ES_fill_tcp_data_p (buf, plen, PSTR ("\">"));
   plen = es.ES_fill_tcp_data_p (buf, plen, PSTR("<input type=hidden name=cmd value=1>"));
-  plen = es.ES_fill_tcp_data_p (buf, plen, PSTR("<input type=submit value=\"Refresh\"></form>"));
+  plen = es.ES_fill_tcp_data_p (buf, plen, PSTR("<input type=submit value=\"Data\">"));
+  plen = es.ES_fill_tcp_data_p (buf, plen, PSTR("</form>"));
+  
+  // Display a form button to access the "about" page
+  plen = es.ES_fill_tcp_data_p (buf, plen, PSTR ("<form METHOD=get action=\""));
+  plen = es.ES_fill_tcp_data (buf, plen, baseurl);
+  plen = es.ES_fill_tcp_data_p (buf, plen, PSTR ("\">"));
+  plen = es.ES_fill_tcp_data_p (buf, plen, PSTR("<input type=hidden name=cmd value=2>"));
+  plen = es.ES_fill_tcp_data_p (buf, plen, PSTR("<input type=submit value=\"About\">"));
+  plen = es.ES_fill_tcp_data_p (buf, plen, PSTR("</form>"));
   
   return (plen);
 }
+
+/**
+ * Generate a web page containing the "About" text
+ */
+uint16_t print_webpage_about (uint8_t *buf)
+{
+  uint16_t plen;         // Length of response packet
+
+  // Send HTTP content-type header
+  plen = es.ES_fill_tcp_data_p (buf, 0, PSTR ("HTTP/1.0 200 OK\r\nContent-Type: text/html\r\n\r\n"));
+
+  // Display the text for the "About" page
+  plen = es.ES_fill_tcp_data_p (buf, plen, PSTR ("<h1>Online Thermometer v1.0</h1>"));
+  plen = es.ES_fill_tcp_data_p (buf, plen, PSTR ("As featured in Practical Arduino.<br />"));
+  plen = es.ES_fill_tcp_data_p (buf, plen, PSTR ("See <a href=\"http://practicalarduino.com\">practicalarduino.com</a> for more info."));
+
+  // Display a form button to update the display
+  plen = es.ES_fill_tcp_data_p (buf, plen, PSTR ("<form METHOD=get action=\""));
+  plen = es.ES_fill_tcp_data (buf, plen, baseurl);
+  plen = es.ES_fill_tcp_data_p (buf, plen, PSTR ("\">"));
+  plen = es.ES_fill_tcp_data_p (buf, plen, PSTR("<input type=hidden name=cmd value=1>"));
+  plen = es.ES_fill_tcp_data_p (buf, plen, PSTR("<input type=submit value=\"Data\">"));
+  plen = es.ES_fill_tcp_data_p (buf, plen, PSTR("</form>"));
+  
+  // Display a form button to access the "about" page
+  plen = es.ES_fill_tcp_data_p (buf, plen, PSTR ("<form METHOD=get action=\""));
+  plen = es.ES_fill_tcp_data (buf, plen, baseurl);
+  plen = es.ES_fill_tcp_data_p (buf, plen, PSTR ("\">"));
+  plen = es.ES_fill_tcp_data_p (buf, plen, PSTR("<input type=hidden name=cmd value=2>"));
+  plen = es.ES_fill_tcp_data_p (buf, plen, PSTR("<input type=submit value=\"About\">"));
+  plen = es.ES_fill_tcp_data_p (buf, plen, PSTR("</form>"));
+  
+  return (plen);
+}
+
 
 /**
  */
